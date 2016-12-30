@@ -72,17 +72,18 @@ class Autoloader
         
         $classFolder = $namespace;
 
-        foreach ($this->customNamenespace as $key => $value) {
 
-            if ($key === $namespace) {
-                $classFolder = $value;
-                break;
+        if(!empty($this->customNamenespace)) {
+            foreach ($this->customNamenespace as $key => $value) {
+                if ($key === $namespace) {
+                    $classFolder = $value;
+                    break;
+                }
             }
         }
 
         $classPath = $this->basePath .'\\' . $classFolder . '\\' . $className . '.php';
         if(file_exists($classPath)) {
-
             return require_once $classPath;
         }
 
