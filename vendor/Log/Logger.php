@@ -2,6 +2,11 @@
 
 namespace vendor\Log;
 
+/**
+ * Class Logger
+ * 
+ * @package vendor\Log
+ */
 class Logger extends AbstractLogger
 {
     /**
@@ -39,9 +44,10 @@ class Logger extends AbstractLogger
 
     /**
      * This method print message on screen or in the log file
-     * @param $level
-     * @param $message
-     * @param array $context
+     *
+     * @param string $level contain name level message
+     * @param string $message contain message
+     * @param array $context contain context message
      */
     public function log($level, $message, $context = [])
     {

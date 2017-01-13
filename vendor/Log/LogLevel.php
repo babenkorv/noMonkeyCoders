@@ -4,7 +4,9 @@ namespace vendor\Log;
 
 /**
  * Class LogLevel
+ * 
  * Contain constants with message level.
+ * 
  * @package vendor\Log
  */
 class LogLevel

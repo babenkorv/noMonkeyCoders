@@ -2,8 +2,8 @@
 
 /**
  * Class Autoloader
- * Find and load classes.
  *
+ * Find and load classes.
  * Example of use:
  * Include class Autoloader in index.php your application.
  * Create object Autoloader class and run method run().
@@ -12,22 +12,24 @@
 class Autoloader
 {
     /**
-     * @var array It contains custom namespace.
+     * @var array $customNamespace It contains custom namespace.
      */
-    private $customNamenespace = [];
+    private $customNamespace = [];
     /**
-     * @var string It contains application path.
+     * @var string $basePath It contains application path.
      */
     private $basePath;
 
     /**
      * Autoloader constructor.
+     *
      * Set base directory application and custom namespace.
-     * @param $conf contain array with key = custom namespace and value = folder with class.
+     *
+     * @param array $conf contain array with key = custom namespace and value = folder with class.
      */
     public function __construct($conf = [])
     {
-        $this->customNamenespace = $conf['classMap'];
+        $this->customNamespace = $conf['classMap'];
         $this->basePath = dirname(__DIR__);
     }
 
@@ -37,22 +39,23 @@ class Autoloader
     public function printCustomNamespace()
     {
         echo  '<pre>';
-        print_r($this->customNamenespace);
+        print_r($this->customNamespace);
         echo '</pre>';
     }
 
     /**
      * This method insert new custom namespace.
-     * @param $namespace custom namespace.
-     * @param $folder folder with class.
+     * 
+     * @param string $namespace custom namespace.
+     * @param string $folder folder with class.
      */
     public function addCustomNamespace($namespace, $folder)
     {
-        $this->customNamenespace[$namespace] = $folder;
+        $this->customNamespace[$namespace] = $folder;
     }
 
     /**
-     * This method started autoloading classes.
+     * This method started process autoload.
      */
     public function run()
     {
@@ -61,7 +64,8 @@ class Autoloader
 
     /**
      * This method searches and connection classes.
-     * @param $class name included classes.
+     *
+     * @param string $class contain name included classes.
      * @return string
      */
     public function ClassLoad($class)
