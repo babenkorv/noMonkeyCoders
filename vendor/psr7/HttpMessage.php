@@ -7,11 +7,11 @@ use vendor\psr7\psr7interface\StreamInterface;
 
 abstract class HttpMessage implements MessageInterface
 {
-    private $protocolVersion = '1.1';
+    protected $protocolVersion = '1.1';
 
     private $headers = [];
 
-    private $body;
+    protected $body;
 
     /**
      * Return http protocol version.
@@ -149,7 +149,7 @@ abstract class HttpMessage implements MessageInterface
     /**
      * Set message body.
      * 
-     * @param StreamInterface $body 
+     * @param StreamInterface $body message body.
      * @return $this
      */
     public function withBody(StreamInterface $body)
@@ -168,5 +168,26 @@ abstract class HttpMessage implements MessageInterface
     {
         return $this->body;
     }
-    
+
+    /**
+     * Add to headers new header form assoc array [header=>[value]].
+     *
+     * @param array $headers array with request headers.
+     */
+    public function setHeaders(array $headers)
+    {
+        foreach ($headers as $header => $value) {
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            $lowerHeader = strtolower($header);
+
+            if(isset($this->headers[$lowerHeader])) {
+                $this->headers[$lowerHeader] = array_merge($this->headers[$lowerHeader], $value);
+            } else {
+                $this->headers[$lowerHeader] = $value;
+            }
+        }
+    }
 }

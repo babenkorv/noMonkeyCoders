@@ -28,6 +28,45 @@ class HttpUri implements UriInterface
 
     private $fragment = '';
 
+    /**
+     * HttpUri constructor.
+     * @param string $uri uri
+     */
+    public function __construct($uri = '')
+    {
+        if ($uri != '') {
+            $partUri = parse_url($uri);
+            if (isset($partUri['scheme'])) {
+                $this->scheme = $partUri['scheme'];
+            }
+            if (isset($partUri['host'])) {
+                $this->host = $partUri['host'];
+            }
+            if (isset($partUri['port'])) {
+                $this->port = $partUri['port'];
+            }
+            if (isset($partUri['user'])) {
+                $this->userInfo = $partUri['user'] . ':' . (isset($partUri['pass']) ? $partUri['pass'] : '');
+            }
+            if (isset($partUri['query'])) {
+                $this->query = $partUri['query'];
+            }
+            if (isset($partUri['fragment'])) {
+                $this->fragment = $partUri['fragment'];
+            }
+        }
+    }
+
+    /**
+     * Compare path uri to uri string.
+     * 
+     * @param string $scheme uri scheme.
+     * @param string $authority uri authority.
+     * @param string $path uri path.
+     * @param string $query uri query.
+     * @param string $fragment uri fragment.
+     * @return string 
+     */
     public static function createUriString($scheme, $authority, $path, $query, $fragment)
     {
         $uri = '';
@@ -45,10 +84,15 @@ class HttpUri implements UriInterface
         if ($fragment != '') {
             $uri .= '#' . $fragment;
         }
-        
+
         return $uri;
     }
 
+    /**
+     * Return uri string.
+     * 
+     * @return string uri.
+     */
     public function __toString()
     {
         return self::createUriString(
@@ -63,8 +107,8 @@ class HttpUri implements UriInterface
     /**
      * Set scheme (http or https).
      *
-     * @param string $scheme
-     * @return $this
+     * @param string $scheme uri scheme.
+     * @return object $this.
      * @throws \Exception
      */
     public function withScheme($scheme)
@@ -88,13 +132,12 @@ class HttpUri implements UriInterface
     {
         return $this->scheme;
     }
-
-
+    
     /**
      * Set host.
      *
      * @param string $host
-     * @return $this
+     * @return object $this
      */
     public function withHost($host)
     {
@@ -121,6 +164,12 @@ class HttpUri implements UriInterface
         }
     }
 
+    /**
+     * Set uri port.
+     * 
+     * @param int|null $port uri port
+     * @return object $this
+     */
     public function withPort($port)
     {
         $this->port = $port;
@@ -128,6 +177,11 @@ class HttpUri implements UriInterface
         return $this;
     }
 
+    /**
+     * Return uri port.
+     * 
+     * @return mixed
+     */
     public function getPort()
     {
         return $this->port;
@@ -143,17 +197,24 @@ class HttpUri implements UriInterface
     {
         $authority = $this->host;
 
-        if($this->userInfo != '') {
+        if ($this->userInfo != '') {
             $authority = $this->userInfo . '@' . $authority;
         }
 
-        if($this->port != null) {
+        if ($this->port != null) {
             $authority .= ':' . $this->port;
         }
 
         return $authority;
     }
 
+    /**
+     * Set uri user info path.
+     * 
+     * @param string $user user name.
+     * @param string|null $password user password.
+     * @return object $this.
+     */
     public function withUserInfo($user, $password = null)
     {
         $this->userInfo = $user . ':' . $password;
@@ -161,11 +222,22 @@ class HttpUri implements UriInterface
         return $this;
     }
 
+    /**
+     * Return user info
+     * 
+     * @return string
+     */
     public function getUserInfo()
     {
         return $this->userInfo;
     }
 
+    /**
+     * Set uri path.
+     * 
+     * @param string $path uri path part.
+     * @return object $this
+     */
     public function withPath($path)
     {
         $this->path = $path;
@@ -173,11 +245,22 @@ class HttpUri implements UriInterface
         return $this;
     }
 
+    /**
+     * Return uri path.
+     * 
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * Set uri fragment.
+     * 
+     * @param string $fragment uri fragment path.
+     * @return object $this
+     */
     public function withFragment($fragment)
     {
         $this->fragment = $fragment;
@@ -185,11 +268,22 @@ class HttpUri implements UriInterface
         return $this;
     }
 
+    /**
+     * Return uri fragment.
+     * 
+     * @return string
+     */
     public function getFragment()
     {
         return $this->fragment;
     }
 
+    /**
+     * Set uri query.
+     * 
+     * @param string $query uri query path.
+     * @return object $this.
+     */
     public function withQuery($query)
     {
         $this->query = $query;
@@ -197,6 +291,11 @@ class HttpUri implements UriInterface
         return $this;
     }
 
+    /**
+     * Return uri query path.
+     * 
+     * @return string
+     */
     public function getQuery()
     {
         return $this->query;
