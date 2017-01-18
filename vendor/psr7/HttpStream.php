@@ -82,6 +82,8 @@ class HttpStream implements StreamInterface
         if ($result == false) {
             throw new \Exception('Writing error');
         };
+        
+        $this->size = null;
 
         return $result;
     }
