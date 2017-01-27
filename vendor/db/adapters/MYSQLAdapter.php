@@ -2,9 +2,9 @@
 
 namespace db\adapters;
 
-use vendor\db\DataBase;
+use vendor\db\DB;
 
-class MYSQLAdapter extends DataBase
+class MYSQLAdapter extends DB
 {
     protected  $pdo;
 

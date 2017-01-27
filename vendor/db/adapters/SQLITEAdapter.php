@@ -2,9 +2,9 @@
 
 namespace db\adapters;
 
-use vendor\db\DataBase;
+use vendor\db\DB;
 
-class SQLITEAdapter extends DataBase
+class SQLITEAdapter extends DB
 {
 
     private $options;
