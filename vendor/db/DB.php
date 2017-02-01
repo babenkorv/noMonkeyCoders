@@ -16,7 +16,7 @@ class DB extends DataBaseConnect
         if (!$sth = $this->pdo->prepare($sql)) {
             throw new \Exception('Database Error: query is not a prepare');
         }
-
+        
         if (!$sth->execute($values)) {
             throw new \Exception('Database Error: query is not a execute');
         }
@@ -52,4 +52,7 @@ class DB extends DataBaseConnect
 
         return $row[0];
     }
+
+
+   
 }

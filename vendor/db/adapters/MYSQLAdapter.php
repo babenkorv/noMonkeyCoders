@@ -20,4 +20,18 @@ class MYSQLAdapter extends DB
             die();
         }
     }
+
+    public function getTableInformation($table)
+    {
+        $res = $this->pdo->query('SHOW COLUMNS FROM ' . $table);
+        return  $res->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+
+    public function checkTableExist($table)
+    {
+        if (!$this->pdo->query('show tables like "' . trim($table) . '"')) {
+            throw new \Exception('Table with name ' . $table . ' is not exist');
+        }
+    }
 }

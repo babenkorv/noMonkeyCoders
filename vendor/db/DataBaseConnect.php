@@ -52,6 +52,7 @@ class DataBaseConnect
 
         $this->setConnectOptions($connect);
         $SQLAdapter = self::loadAdapterClass($this->connectOptions['scheme']);
+
         $this->adapter = new $SQLAdapter($this->connectOptions);
     }
 
@@ -82,11 +83,21 @@ class DataBaseConnect
             $dsn = $connectOption['dsn'];
 
             $this->connectOptions['scheme'] = explode(':', $dsn)[0];
-            $dsn = explode(';', str_replace($this->connectOptions['sheme'], '', $dsn));
-            $this->connectOptions['host'] = explode('=', $dsn[0])[1];
-            $this->connectOptions['db'] = explode('=', $dsn[1])[1];
-            $this->connectOptions['user'] = isset($connectOption['user']) ? $connectOption['user'] : 'null';
-            $this->connectOptions['pass '] = isset($connectOption['pass']) ? $connectOption['pass'] : 'null';
+
+            $dsn = str_replace($this->connectOptions['scheme'] . ':', '', $dsn);
+
+            switch ($this->connectOptions['scheme']) {
+                case 'mysql':
+                    $dsn = explode(';',$dsn);
+                    $this->connectOptions['host'] = explode('=', $dsn[0])[1];
+                    $this->connectOptions['db'] = explode('=', $dsn[1])[1];
+                    $this->connectOptions['user'] = isset($connectOption['user']) ? $connectOption['user'] : 'null';
+                    $this->connectOptions['pass '] = isset($connectOption['pass']) ? $connectOption['pass'] : 'null';
+                    break;
+                case 'sqlite':
+                    $this->connectOptions['path'] = $dsn;
+                    break;
+            }
         }
 
         if (is_array($connect)) {

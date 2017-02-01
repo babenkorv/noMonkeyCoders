@@ -59,7 +59,7 @@ class SqlBuilder
      *
      * object @var
      */
-    private $connection;
+    protected $connection;
 
     /**
      * String with generate sql query.
@@ -80,7 +80,7 @@ class SqlBuilder
      *
      * array @var array
      */
-    private $tableInfo = [];
+    protected $tableInfo = [];
 
     /**
      * Part of sql query. Contain name selected fields.
@@ -94,7 +94,7 @@ class SqlBuilder
      *
      * array @var array
      */
-    private $where = [];
+    protected $where = [];
 
     /**
      * Part of sql query. Contain array with query field (sort).
@@ -138,6 +138,37 @@ class SqlBuilder
      */
     private $join = [];
 
+    private $insert;
+
+    private $update;
+
+    private $delete;
+
+    public function lastInsertId()
+    {
+        return $this->connection->findOne('select max(id) from ' . $this->table)["max(id)"];
+    }
+
+
+    public function getTableInfo()
+    {
+        return null;
+    }
+
+    protected function clearSqlPart() 
+    {
+        $this->select = '';
+        $this->where = [];
+        $this->delete = '';
+        $this->having = [];
+        $this->join = [];
+        $this->distinct = false;
+        $this->order = [];
+        $this->aggregate = [];
+        $this->groupBy = [];
+        $this->insert = '';
+    }
+    
     /**
      * SqlBuilder constructor.
      *
@@ -146,9 +177,13 @@ class SqlBuilder
      */
     public function __construct($connection, $table)
     {
+
         $this->connection = $connection;
+
         $this->table = $this->convertToUpperCase($table);
-        $this->tableInfo = $this->getTableInformation($this->table);
+
+        $this->tableInfo = $this->connection->getTableInformation($table);
+
     }
 
     /**
@@ -178,10 +213,7 @@ class SqlBuilder
      * @param string $table table name
      * @return array mixed
      */
-    public function getTableInformation($table)
-    {
-        return $this->connection->findAll('SHOW COLUMNS FROM ' . $table);
-    }
+
 
 
     /**
@@ -198,6 +230,16 @@ class SqlBuilder
         }
 
         return $this->connection->findAll($this->sql);
+    }
+
+    public function findOne()
+    {
+        $this->queryBuild();
+        if (empty($this->sql)) {
+            throw new \Exception('You must create sql query');
+        }
+
+        return $this->connection->findOne($this->sql);
     }
 
     /**
@@ -224,7 +266,7 @@ class SqlBuilder
             }
             $this->select = implode(',', $selectFields);
         }
-        var_dump($this->select);
+
         if (!empty($this->select)) {
             $this->sql = 'SELECT ';
             $this->sql .= ($this->distinct === true) ? 'DISTINCT ' : '';
@@ -271,7 +313,153 @@ class SqlBuilder
                 $this->sql .= ' ';
             }
         }
-        echo $this->sql;
+
+        if(!empty($this->order)) {
+            $this->sql .= ' ORDER BY ';
+            foreach ($this->order as $order) {
+                $this->sql .= $order['field'] . ' ' . $order['param'] . ',';
+            }
+
+            $this->sql = substr($this->sql, 0, -1);
+        }
+
+        return $this->sql;
+    }
+
+    /**
+     * Insert in database new date.
+     *
+     * @param array $data assoc array (filed name=> field value)
+     * @return $this
+     * @throws \Exception
+     */
+    public function insert(array $data)
+    {
+        foreach ($data as $fieldName => $fieldValue) {
+            $this->validate([
+                [
+                    'type' => 'fieldInTableExist',
+                    'value' => [
+                        'table' => $this->tableInfo,
+                        'field' => $fieldName,
+                    ]
+                ],
+                [
+                    'type' => 'allowOperation',
+                    'value' => 'insert',
+                ],
+            ]);
+        }
+
+        $stringFields = '';
+        $stringValue = '';
+
+        foreach ($data as $insertedField => $insertedValue) {
+            $stringFields .= $insertedField . ',';
+            $stringValue .= ':' . $insertedField . ',';
+        }
+        $stringFields = substr($stringFields, 0, -1);
+        $stringValue = substr($stringValue, 0, -1);
+
+        $this->insert['sql'] = "INSERT INTO $this->table($stringFields) VALUES ($stringValue)";
+        $this->insert['data'] = $data;
+
+        return $this;
+    }
+
+    /**
+     * Update selected fields
+     *
+     * @param array $data assoc array (filed name=> field value)
+     * @return $this
+     * @throws \Exception
+     */
+    public function update(array $data)
+    {
+        foreach ($data as $fieldName => $fieldValue) {
+            $this->validate([
+                [
+                    'type' => 'fieldInTableExist',
+                    'value' => [
+                        'table' => $this->tableInfo,
+                        'field' => $fieldName,
+                    ]
+                ],
+                [
+                    'type' => 'allowOperation',
+                    'value' => 'update',
+                ]
+            ]);
+        }
+
+        $sqlUpdate = '';
+
+        foreach ($data as $insertedField => $insertedValue) {
+            $sqlUpdate .= $insertedField . '=' . "'" . $insertedValue . "'" . ',';
+        }
+
+        $sqlUpdate = substr($sqlUpdate, 0, -1);
+
+        $this->update = "UPDATE $this->table SET $sqlUpdate";
+
+        return $this;
+    }
+
+    /**
+     * Delete selected field in table.
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function delete()
+    {
+        $this->validate([
+            [
+                'type' => 'allowOperation',
+                'value' => 'delete',
+            ]
+        ]);
+
+        $this->delete = 'DELETE FROM ' . $this->table;
+
+        return $this;
+    }
+
+    /**
+     * Execute insert/update/delete query
+     */
+    public function execute()
+    {
+        $data = [];
+
+        if (!empty($this->delete)) {
+            $where = ' WHERE ';
+            foreach ($this->where as $item) {
+                $where .= $item['prefix'] . ' ' . $item['field'] . ' ' . $item['operator'] . ' ' . $item['value'];
+            }
+            $data['sql'] = $this->delete . $where;
+        }
+
+        if (!empty($this->insert)) {
+            $data = $this->insert;
+        }
+
+        if (!empty($this->update)) {
+            $where = ' WHERE ';
+            foreach ($this->where as $item) {
+                $where .= $item['prefix'] . ' ' . $item['field'] . ' ' . $item['operator'] . ' ' . $item['value'];
+            }
+            $data['sql'] = $this->update . $where;
+        }
+        $executeData = [];
+
+        if (is_array($data['data'])) {
+            foreach ($data['data'] as $key => $item) {
+                $executeData[':' . $key] = $item;
+            }
+        }
+        var_dump($data['sql']);
+        $this->connection->query($data['sql'], $executeData);
     }
 
     /**
@@ -283,6 +471,10 @@ class SqlBuilder
      */
     public function select(array $fields = [])
     {
+        if (!empty($this->insert) || !empty($this->update) || !empty($this->delete)) {
+            throw new \Exception('Command insert not use with update or insert');
+        }
+
         $fields = $this->convertToUpperCase($fields);
 
         foreach ($fields as $field) {
@@ -291,10 +483,14 @@ class SqlBuilder
                 [
                     'type' => 'fieldInTableExist',
                     'value' => [
-                        'table' => (isset($tablAndFied[1])) ? $this->getTableInformation($tablAndFied[1]) : $this->table,
+                        'table' => (isset($tablAndFied[1])) ? $this->connection->getTableInformation($tablAndFied[1]) : $this->tableInfo,
                         'field' => $tablAndFied[0],
                     ]
                 ],
+                [
+                    'type' => 'allowOperation',
+                    'value' => 'select',
+                ]
             ]);
         }
         if (!empty($fields)) {
@@ -322,7 +518,7 @@ class SqlBuilder
             throw new \Exception('You must use alias');
         }
 
-        $childTableInfo = $this->getTableInformation($childTable);
+        $childTableInfo = $this->connection->getTableInformation($childTable);
 
         $this->validate([
             [
@@ -377,7 +573,7 @@ class SqlBuilder
         $table = $this->tableInfo;
 
         if (strpos($field, '.')) {
-            $table = $this->getTableInformation(explode('.', $field)[0]);
+            $table = $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
         $this->validate([
@@ -406,7 +602,7 @@ class SqlBuilder
 
     /**
      * Sets where part with prefix = and sql query.
-     * 
+     *
      * @param string $field table field name.
      * @param string $operator where operator.
      * @param string $value value for equal with table filed.
@@ -423,7 +619,7 @@ class SqlBuilder
 
     /**
      * Sets where part with prefix = or sql query.
-     * 
+     *
      * @param string $field table field name.
      * @param string $operator where operator.
      * @param string $value value for equal with table filed.
@@ -465,7 +661,7 @@ class SqlBuilder
 
     /**
      * Sets between where part sql query.
-     * 
+     *
      * @param string $field name field table.
      * @param string $minValue start value for equal.
      * @param string $maxValue finish value for equal.
@@ -477,7 +673,7 @@ class SqlBuilder
         if (empty($this->where)) {
             $prefix = '';
         }
-            
+
         $this->where[] = [
             'field' => $field,
             'prefix' => $prefix,
@@ -489,7 +685,7 @@ class SqlBuilder
 
     /**
      * Sets table field for order.
-     * 
+     *
      * @param string $field table field name.
      * @param string $param
      * @return $this
@@ -499,7 +695,7 @@ class SqlBuilder
         $table = $this->tableInfo;
 
         if (strpos($field, '.')) {
-            $table = $this->getTableInformation(explode('.', $field)[0]);
+            $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
         $this->validate([
@@ -511,7 +707,7 @@ class SqlBuilder
                 ],
             ],
         ]);
-        
+
         $this->order[] = [
             'field' => $field,
             'param' => $param
@@ -521,7 +717,7 @@ class SqlBuilder
 
     /**
      * Set distinct property.
-     * 
+     *
      * @param bool $param
      * @return $this
      */
@@ -534,7 +730,7 @@ class SqlBuilder
 
     /**
      * Set on table field aggregate functions.
-     * 
+     *
      * @param string $field field name.
      * @param string $func aggregate function.
      * @return $this
@@ -544,7 +740,7 @@ class SqlBuilder
         $table = $this->tableInfo;
 
         if (strpos($field, '.')) {
-            $table = $this->getTableInformation(explode('.', $field)[0]);
+            $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
         $this->validate([
@@ -571,7 +767,7 @@ class SqlBuilder
 
     /**
      * Count row in table.
-     * 
+     *
      * @param string $field name table field.
      * @return SqlBuilder
      */
@@ -581,8 +777,8 @@ class SqlBuilder
     }
 
     /**
-     * Max value 
-     * 
+     * Max value
+     *
      * @param string $field name table field.
      * @return SqlBuilder
      */
@@ -593,7 +789,7 @@ class SqlBuilder
 
     /**
      * Min value
-     * 
+     *
      * @param string $field name table field.
      * @return SqlBuilder
      */
@@ -604,7 +800,7 @@ class SqlBuilder
 
     /**
      * AVG value
-     * 
+     *
      * @param string $field name table field.
      * @return SqlBuilder
      */
@@ -615,7 +811,7 @@ class SqlBuilder
 
     /**
      * Sets gropu by param sql query.
-     * 
+     *
      * @param array $fields array with field name.
      * @return $this
      * @throws \Exception
@@ -623,10 +819,10 @@ class SqlBuilder
     public function groupBy(array $fields)
     {
         $table = $this->tableInfo;
-        
+
         foreach ($fields as $field) {
             if (strpos($field, '.')) {
-                $table = $this->getTableInformation(explode('.', $field)[0]);
+                $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
             };
 
             $this->validate([
@@ -646,7 +842,7 @@ class SqlBuilder
 
     /**
      * Sets having part sql query.
-     * 
+     *
      * @param string $field table field name.
      * @param string $operator operator name.
      * @param string $value value from equal.
@@ -660,13 +856,13 @@ class SqlBuilder
         if (!empty($this->where)) {
             throw new \Exception('Use having without groupBy is impossible');
         }
-        
+
         $table = $this->tableInfo;
 
         if (strpos($field, '.')) {
-            $table = $this->getTableInformation(explode('.', $field)[0]);
+            $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
-        
+
         $this->validate([
             [
                 'type' => 'accessLogicOperator',
@@ -684,7 +880,7 @@ class SqlBuilder
                 'value' => $aggregateFunction,
             ],
         ]);
-        
+
         $this->having[] = [
             'field' => $field,
             'operator' => $this->accessOperators[$operator],
@@ -698,7 +894,7 @@ class SqlBuilder
 
     /**
      * Sets and having part sql query.
-     * 
+     *
      * @param string $field table field name.
      * @param string $operator operator name.
      * @param string $value value from equal.
@@ -733,8 +929,8 @@ class SqlBuilder
 
         return $this->having($field, $operator, $value, $aggregateFunction, 'OR');
     }
-    
-    
+
+
     /**
      * ------------------------------------ validate methods ------------------------------------
      */
@@ -765,12 +961,51 @@ class SqlBuilder
                     case 'accessAggregateFunction':
                         $this->checkAggregateFunction($option['value']);
                         break;
+                    case 'allowOperation' :
+                        $this->checkAllowOperation($option['value']);
                 }
             }
         }
     }
 
+    /**
+     * Check on allowed sql operation.
+     *
+     * @param string $operation sql operation(update, select ...)
+     * @throws \Exception
+     */
+    public function checkAllowOperation($operation)
+    {
+        switch ($operation) {
+            case 'select':
+                if (!empty($this->insert || !empty($this->update) || !empty($this->delete))) {
+                    throw new \Exception('Command select not use with update, insert, delete');
+                };
+                break;
+            case 'insert':
+                if (!empty($this->select || !empty($this->update) || !empty($this->delete))) {
+                    throw new \Exception('Command insert not use with update, insert, select');
+                };
+                break;
+            case 'delete':
+                if (!empty($this->insert || !empty($this->update) || !empty($this->delete))) {
+                    throw new \Exception('Command delete not use with update, insert, select');
+                };
+                break;
+            case 'update':
+                if (!empty($this->insert || !empty($this->update) || !empty($this->delete))) {
+                    throw new \Exception('Command update not use with delete, insert, select');
+                };
+                break;
+        }
+    }
 
+    /**
+     * Check on correct input aggregate function.
+     *
+     * @param string $func name aggregate function.
+     * @throws \Exception
+     */
     public function checkAggregateFunction($func)
     {
         if (!in_array($func, $this->accessAggregateFunctions)) {
@@ -786,9 +1021,7 @@ class SqlBuilder
      */
     public function checkTableExist($table)
     {
-        if (!$this->connection->findAll('show tables like "' . trim($table) . '"')) {
-            throw new \Exception('Table with name ' . $table . ' is not exist');
-        }
+        $this->connection->checkTableExist($table);
     }
 
     /**
@@ -802,7 +1035,6 @@ class SqlBuilder
     public function checkExistFieldInTable($field, $table = null)
     {
         $f = explode('AS', $field);
-
         foreach ($table as $fieldInTable) {
 
             if (strtoupper(trim($f[0])) == strtoupper($fieldInTable['Field'])) {

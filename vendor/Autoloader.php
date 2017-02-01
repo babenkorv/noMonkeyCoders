@@ -76,7 +76,6 @@ class Autoloader
         
         $classFolder = $namespace;
 
-
         if(!empty($this->customNamenespace)) {
             foreach ($this->customNamenespace as $key => $value) {
                 if ($key === $namespace) {
