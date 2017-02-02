@@ -7,6 +7,10 @@ use vendor\db\SqlBuilder;
 
 abstract class Model extends SqlBuilder
 {
+    use Validator {
+        Validator::validate as modelValidate;
+    }
+
     public $attribute = [];
     public $oldAttribute = [];
 
@@ -46,7 +50,6 @@ abstract class Model extends SqlBuilder
     public function __get($name)
     {
         if (array_key_exists($name, $this->attribute)) {
-            echo $this->attribute[$name]['value'];
             return $this->attribute[$name]['value'];
         } else {
             throw new \Exception('Attribute with name: ' . '"' . $name . '"' . 'in table:' . ' "' . $this->tableName() . '"' . ' is not exist');
@@ -67,7 +70,6 @@ abstract class Model extends SqlBuilder
         if (!empty($data)) {
 
             if (empty($this->oldAttribute)) {
-
                 $this->insert($data)->execute();
                 $this->oldAttribute = $this->attribute;
                 $this->oldAttribute['id']['value'] = $this->lastInsertId();
@@ -85,12 +87,15 @@ abstract class Model extends SqlBuilder
 
     public function findOne()
     {
-        $modelData =  parent::findOne();
-
-        foreach ($modelData as $key => $value) {
-            $this->oldAttribute[$key]['value'] = $value;
+        $modelData = parent::findOne();
+        if (!empty($modelData)) {
+            foreach ($modelData as $key => $value) {
+                $this->oldAttribute[$key]['value'] = $value;
+                $this->attribute[$key]['value'] = $value;
+            }
         }
 
+        return false;
     }
 }
 

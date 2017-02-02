@@ -3,7 +3,9 @@
 namespace application;
 
 use models\MyModel;
+use models\User;
 use vendor\App;
+use vendor\components\Auth;
 use vendor\db\Connect;
 use vendor\db\DataBase;
 use vendor\db\DataBaseConnect;
@@ -26,11 +28,15 @@ $d = DataBaseConnect::instance(null);
 
 //$q = $queryBilder->update(['name' => 'ak'])->where('id', '=', 78)->execute();
 //var_dump($q);
-$model = new MyModel();
+//$model = new MyModel();
 
+//$model->where('id', '=', 159)->findOne();
+//var_dump($model->id);
+//$model->name  = 'dasda22';
 
-$model->where('id', '=', 159)->findOne();
-
-$model->name  = 'dasda22';
-
-$model->save();
+//$model->save();
+//////
+$auth = new Auth();
+//$auth::signIn('2258', '228', '228');
+//
+$auth::logIn('2258', '228');

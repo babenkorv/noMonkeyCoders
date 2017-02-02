@@ -225,6 +225,8 @@ class SqlBuilder
     public function find()
     {
         $this->queryBuild();
+
+  
         if (empty($this->sql)) {
             throw new \Exception('You must create sql query');
         }
@@ -458,7 +460,7 @@ class SqlBuilder
                 $executeData[':' . $key] = $item;
             }
         }
-        var_dump($data['sql']);
+
         $this->connection->query($data['sql'], $executeData);
     }
 
