@@ -8,4 +8,7 @@ return [
     ],
 
     'pathToLogFile' => dirname(__DIR__) . '\\' .  'Log\log.txt',
+
+    'defaultRoute' => 'main/index',
+    'project_name' => 'NoMonkeyCoders',
 ];

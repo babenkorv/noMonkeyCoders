@@ -338,7 +338,7 @@ class SqlBuilder
     public function insert(array $data)
     {
         foreach ($data as $fieldName => $fieldValue) {
-            $this->validate([
+            $this->modelValidate([
                 [
                     'type' => 'fieldInTableExist',
                     'value' => [
@@ -379,7 +379,7 @@ class SqlBuilder
     public function update(array $data)
     {
         foreach ($data as $fieldName => $fieldValue) {
-            $this->validate([
+            $this->modelValidate([
                 [
                     'type' => 'fieldInTableExist',
                     'value' => [
@@ -415,7 +415,7 @@ class SqlBuilder
      */
     public function delete()
     {
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'allowOperation',
                 'value' => 'delete',
@@ -481,7 +481,7 @@ class SqlBuilder
 
         foreach ($fields as $field) {
             $tablAndFied = array_reverse(explode('.', $field));
-            $this->validate([
+            $this->modelValidate([
                 [
                     'type' => 'fieldInTableExist',
                     'value' => [
@@ -522,7 +522,7 @@ class SqlBuilder
 
         $childTableInfo = $this->connection->getTableInformation($childTable);
 
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'tableExist',
                 'value' => $childTable
@@ -578,7 +578,7 @@ class SqlBuilder
             $table = $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'accessLogicOperator',
                 'value' => $operator,
@@ -700,7 +700,7 @@ class SqlBuilder
             $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'fieldInTableExist',
                 'value' => [
@@ -745,7 +745,7 @@ class SqlBuilder
             $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'accessAggregateFunction',
                 'value' => $func,
@@ -827,7 +827,7 @@ class SqlBuilder
                 $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
             };
 
-            $this->validate([
+            $this->modelValidate([
                 [
                     'type' => 'fieldInTableExist',
                     'value' => [
@@ -865,7 +865,7 @@ class SqlBuilder
             $table =  $this->connection->getTableInformation(explode('.', $field)[0]);
         };
 
-        $this->validate([
+        $this->modelValidate([
             [
                 'type' => 'accessLogicOperator',
                 'value' => $operator,
@@ -943,7 +943,7 @@ class SqlBuilder
      * @param array $options
      * @throws \Exception
      */
-    public function validate($options = [])
+    public function modelValidate($options = [])
     {
         if (!empty($options)) {
             foreach ($options as $option) {

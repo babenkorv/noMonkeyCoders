@@ -2,14 +2,13 @@
 
 namespace vendor\components;
 
+use vendor\components\validate\Validator;
 use vendor\db\DataBaseConnect;
 use vendor\db\SqlBuilder;
 
 abstract class Model extends SqlBuilder
 {
-    use Validator {
-        Validator::validate as modelValidate;
-    }
+    use Validator;
 
     public $attribute = [];
     public $oldAttribute = [];
@@ -58,6 +57,10 @@ abstract class Model extends SqlBuilder
 
     public function save()
     {
+        if(!$this->validate()) {
+            return false;
+        }
+
         $this->clearSqlPart();
         $data = [];
 

@@ -14,9 +14,9 @@ class MyModel extends  Model
     public function rule()
     {
         return [
-            ['email', 'equal', 'param' => 'ss'],
-            [['email', 'password'], 'required'],
-            ['email', 'email']
+
+            [['name'], 'email'],
+            
         ];
     }
     
