@@ -13,7 +13,7 @@ use vendor\components\Model;
 
 class User extends Model
 {
-    public $authHash = null;
+    public $token = null;
     
     public function tableName()
     {
@@ -25,6 +25,6 @@ class User extends Model
         return [
             [['email', 'password'], 'required'],
             ['email', 'email'],
-        ];
+        ];  
     }
 }

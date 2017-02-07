@@ -8,19 +8,14 @@ class MyModel extends  Model
 {
     public function tableName()
     {
-        return 'a';
+        return 'data';
     }
 
     public function rule()
     {
-        return [
-
-            [['name'], 'email'],
-            
-        ];
+        return [];
     }
     
- 
 }
 
 

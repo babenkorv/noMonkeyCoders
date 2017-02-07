@@ -20,7 +20,6 @@ use vendor\psr7\HttpStream;
 use vendor\psr7\HttpUploadedFile;
 use vendor\psr7\HttpUri;
 
-echo '<pre>';
 
 $d = DataBaseConnect::instance(null);
 //

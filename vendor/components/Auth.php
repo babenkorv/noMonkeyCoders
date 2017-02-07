@@ -26,9 +26,13 @@ class Auth
         self::$user->password = self::dataCrypt($password);
 
         if (self::checkOnExistUser()) {
-           
             self::$user->save();
         }
+    }
+
+    public static function getUserToken()
+    {
+        return self::$user->token;
     }
 
     public static function logIn($email, $password)
@@ -39,7 +43,7 @@ class Auth
 
         if (self::equalsCryptData($password, self::$user->password)) {
             $hash = self::dataCrypt(self::generateRandomString());
-            self::$user->authHash = $hash;
+            self::$user->token = $hash;
             self::addToSession($hash);
         } else {
             throw new \Exception('Invalid email or password');
@@ -74,7 +78,7 @@ class Auth
 
     private static function addToSession($hash)
     {
-        self::$user->authHash = $hash;
+        self::$user->token = $hash;
         $_SESSION['loggedUser'] = $hash;
     }
 

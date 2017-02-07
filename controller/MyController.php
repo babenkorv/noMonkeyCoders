@@ -2,13 +2,15 @@
 
 namespace controller;
 
+use models\MyModel;
 use vendor\components\Controller;
+use vendor\widgets\GridView;
 
 class MyController extends Controller
 {
     public function actionIndex()
     {
-        var_dump($this->routeData);
-        echo 'hello';
+
+        $this->render('index', []);
     }
 }

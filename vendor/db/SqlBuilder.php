@@ -572,12 +572,16 @@ class SqlBuilder
      */
     public function where($field, $operator, $value, $prefix = '')
     {
+        if(empty($value) ) {
+            return $this;
+        }
+
         $table = $this->tableInfo;
 
         if (strpos($field, '.')) {
             $table = $this->connection->getTableInformation(explode('.', $field)[0]);
         };
-
+    
         $this->modelValidate([
             [
                 'type' => 'accessLogicOperator',
@@ -614,7 +618,7 @@ class SqlBuilder
     public function andWhere($field, $operator, $value)
     {
         if (empty($this->where)) {
-            throw new \Exception('You must user where before adnWhere');
+            return $this->where($field, $operator, $value, '');
         }
         return $this->where($field, $operator, $value, 'AND');
     }
@@ -631,7 +635,7 @@ class SqlBuilder
     public function orWhere($field, $operator, $value)
     {
         if (empty($this->where)) {
-            throw new \Exception('You must user where before orWhere');
+            return $this->where($field, $operator, $value, '');
         }
 
         return $this->where($field, $operator, $value, 'OR');
