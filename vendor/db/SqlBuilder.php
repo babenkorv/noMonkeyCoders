@@ -138,6 +138,10 @@ class SqlBuilder
      */
     private $join = [];
 
+    public $limit;
+
+    public $offset;
+
     private $insert;
 
     private $update;
@@ -286,6 +290,7 @@ class SqlBuilder
             }
         }
 
+
         if (!empty($this->where)) {
             $this->sql .= 'WHERE';
             foreach ($this->where as $wherePart) {
@@ -323,6 +328,15 @@ class SqlBuilder
             }
 
             $this->sql = substr($this->sql, 0, -1);
+        }
+        
+        if (!empty($this->limit)) {
+            $this->sql .= ' LIMIT ' . $this->limit . ' ';
+
+        }
+
+        if (!empty($this->offset)) {
+            $this->sql .= ' OFFSET ' . $this->offset . ' ';
         }
 
         return $this->sql;
@@ -690,6 +704,32 @@ class SqlBuilder
     }
 
     /**
+     * Set limit part of sql query.
+     *
+     * @param $countRow
+     * @return $this
+     */
+    public function limit($countRow)
+    {
+        $this->limit  = $countRow;
+
+        return $this;
+    }
+
+    /**
+     * Set offset part of sql query.
+     *
+     * @param $pointer
+     * @return $this
+     */
+    public function offset($pointer)
+    {
+        $this->offset = $pointer;
+
+        return $this;
+    }
+
+    /**
      * Sets table field for order.
      *
      * @param string $field table field name.
@@ -782,6 +822,13 @@ class SqlBuilder
         return $this->aggregate($field, 'COUNT');
     }
 
+    
+    public function countAllRows() 
+    {
+        $query = 'SELECT COUNT(*) FROM ' . $this->table;
+
+        return $this->connection->findOne($query)["COUNT(*)"];
+    }
     /**
      * Max value
      *

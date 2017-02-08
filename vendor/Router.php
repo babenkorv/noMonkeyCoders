@@ -17,11 +17,23 @@ class Router
     ];
     public static $route = [];
 
+    /**
+     * Add new rule.
+     *
+     * @param string $regexp
+     * @param array $route contain controller and action name.
+     */
     public static function add($regexp, $route = [])
     {
         self::$routes[$regexp] = $route;
     }
 
+    /**
+     * Transform input string to camel case format.
+     *
+     * @param $str
+     * @return mixed
+     */
     public static function upperCamelCase($str)
     {
         $str = str_replace('-', ' ', $str);
@@ -30,6 +42,12 @@ class Router
         return $str;
     }
 
+    /**
+     * Check url address on coincidence with set rule.
+     *
+     * @param string $url url address.
+     * @return bool
+     */
     public static function matchRoutes($url)
     {
         foreach (self::$routes as $pattern => $route) {
@@ -50,6 +68,11 @@ class Router
         return false;
     }
 
+    /**
+     * Parse url address and redirect on needed controller and action.
+     *
+     * @param $url
+     */
     public static function dispatch($url)
     {
         $url = explode('?', $url)[0];

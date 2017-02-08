@@ -13,13 +13,44 @@ class GridView
     private $bodyRows;
     private $rows;
     private $tableLabel;
+    public $paginationNavBar = null;
 
-
+    /**
+     * Return result table
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->render();
     }
 
+    /**
+     * Set parameters of table.
+     * 
+     * Paginate: 
+     *      If you want use paginate widget pass to param 'model' result work method model paginate widget.
+     *      If you want show paginate navigate bar pass to param 'paginationNavBar' result work navBar method.
+     * 
+     * Example @param $data:
+     *
+     *      [
+     *          'model' => $paginator->model(),
+     *          'searchModel' => new \models\search\MyModelSearch(),
+     *          'column' => [
+     *          'name',
+     *              [
+     *                  'attribute' => 'sex',
+     *                  'label' => 'gender',
+     *              ],
+     *              'dr'
+     *          ],
+     *          'paginationNavBar' => $paginator->navBar(),
+     *      ]
+     *
+     * GridView constructor.
+     * @param array $data
+     */
     public function __construct($data = [])
     {
         $this->data = $data;
@@ -30,6 +61,9 @@ class GridView
         $this->setBody();
     }
 
+    /**
+     * Create part with find field.
+     */
     private function setFindField()
     {
         $columns = $this->data['column'];
@@ -47,7 +81,6 @@ class GridView
                 }
             }
         }
-
         $this->columnFilter .= '<form name="test" method="get" id="find_form"></form>';
         $this->columnFilter .= '<input type="submit" form="find_form" hidden>';
 
@@ -55,6 +88,12 @@ class GridView
             $value = (isset($_GET[$filterColumn['attribute']])) ? $_GET[$filterColumn['attribute']]: '';
             $this->columnFilter .= ($filterColumn['attribute'] != '') ? '<th>' . '<input class="form-input" type="text" name="' . $filterColumn['attribute'] . '" form="find_form" value="' . $value  .'">' . '</th>' : '<th></th>';
         }
+
+        if(empty($_GET['current_page'])) {
+            $_GET['current_page'] = 1;
+        }
+        
+        $this->columnFilter .= '<input type="text" name="current_page" form="find_form"' . 'value="' . $_GET['current_page'] .'" hidden>';
     }
 
     /**
@@ -65,7 +104,7 @@ class GridView
         if(empty($_GET)) {
             $this->rows = $this->data['model']->select($this->columnName)->find();
         } else {
-            $this->rows = $this->searchModel->search($_GET)->select($this->columnName)->find();
+            $this->rows = $this->searchModel->select($this->columnName)->limit($this->data['model']->limit)->offset($this->data['model']->offset)->search($_GET)->find();
         }
     }
 
@@ -110,18 +149,21 @@ class GridView
         }
     }
 
-
-
+    /**
+     * Compare part of table to result table.
+     *
+     * @return string
+     */
     private function render()
     {
         $option = (!empty($this->data['options'])) ? $this->data['options'] : '';
         $html =
-            '<table ' . $option . '>'
+            '<table class="table table-striped table-hover">'
             . $this->tableLabel
             . $this->columnFilter
             . $this->bodyRows
             . '</table>';
 
-        return $html;
+        return $html . $this->data['paginationNavBar'];
     }
 }

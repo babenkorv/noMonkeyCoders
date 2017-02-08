@@ -17,7 +17,10 @@ return [
             '*' => ['assets' . DIRECTORY_SEPARATOR . 'spectre.min.css'],
         ],
         'js' => [
-            '*' => ['assets' . DIRECTORY_SEPARATOR . 'validate.min.js'],
+            '*' => [
+                'assets' . DIRECTORY_SEPARATOR . 'validate.min.js',
+                'assets' . DIRECTORY_SEPARATOR . 'tiny-min.js'
+            ],
         ],
     ]
 ];

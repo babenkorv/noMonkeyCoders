@@ -24,7 +24,7 @@ class MyModelSearch extends MyModel
      * @return $this
      */
     public function search($findData)
-    {   
+    {
         $this->where('name', '=', $this->screening($findData['name']))->andWhere('sex', '=', $this->screening($findData['sex']));
 
         return $this;
