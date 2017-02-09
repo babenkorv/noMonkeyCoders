@@ -8,6 +8,8 @@ use vendor\widgets\GridView;
 
 class MyController extends Controller
 {
+   public $layout = 'main';
+
     public function actionIndex()
     {
 

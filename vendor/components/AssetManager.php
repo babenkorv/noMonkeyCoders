@@ -68,19 +68,20 @@ class AssetManager
         $htmlCss = '<style>' . PHP_EOL;
         $htmlJs = '';
 
-        echo '<style>' . PHP_EOL;
-        foreach ($assetCss as $css) {
-            include (!empty($defaultPath['css'])) ? $defaultPath['css'] . $css : self::$defaultPath['css'] . $css;
-//            $htmlCss .= '<link href="' . $defaultPath['css'] . $css . '" type="text/css" rel="stylesheet">' . PHP_EOL;
-        }
-        echo PHP_EOL . '</style>';
 
-        echo '<script>';
-        foreach ($assetJs as $js) {
+        foreach ($assetCss as $key => $css) {
+            echo '<style>' . PHP_EOL;
+            include (!empty($defaultPath['css'])) ? $defaultPath['css'] . $css : self::$defaultPath['css'] . $css;
+//            $htmlCss .= '<link href="' . Alias::getAlias('@web') . $css . '" type="text/css" rel="stylesheet">' . PHP_EOL ;
+            echo PHP_EOL . '</style>';
+        }
+
+        foreach ($assetJs as $key => $js) {
+            echo '<script>';
             include (!empty($defaultPath['js'])) ? $defaultPath['js'] . $js : self::$defaultPath['js'] . $js;
 //            $htmlJs .= '<script src="' . $defaultPath['js'] . $js . '">' . '</script>' . '<br>';
+            echo PHP_EOL . '</script>';
         }
-        echo PHP_EOL . '</script>';
     }
 
     /**
@@ -108,7 +109,7 @@ class AssetManager
      */
     public static function setConfigAsset()
     {
-        $configAsset = include(Base::getAlias('@config') . 'app.php');
+        $configAsset = include(Alias::getAlias('@config') . 'app.php');
         self::$assets = $configAsset['assetManager'];
     }
 }

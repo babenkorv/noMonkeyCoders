@@ -7,7 +7,7 @@ return [
         'app\folder' => 'app'
     ],
 
-    'pathToLogFile' => dirname(__DIR__) . '\\' . 'Log\log.txt',
+    'pathToLogFile' => dirname(__DIR__) . '\\' . 'log\log.txt',
 
     'defaultRoute' => 'main/index',
     'project_name' => 'NoMonkeyCoders',
@@ -17,10 +17,7 @@ return [
             '*' => ['assets' . DIRECTORY_SEPARATOR . 'spectre.min.css'],
         ],
         'js' => [
-            '*' => [
-                'assets' . DIRECTORY_SEPARATOR . 'validate.min.js',
-                'assets' . DIRECTORY_SEPARATOR . 'tiny-min.js'
-            ],
+           
         ],
     ]
 ];

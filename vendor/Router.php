@@ -8,7 +8,7 @@
 
 namespace vendor;
 
-use vendor\components\Base;
+use vendor\components\Alias;
 
 class Router
 {
@@ -50,6 +50,7 @@ class Router
      */
     public static function matchRoutes($url)
     {
+
         foreach (self::$routes as $pattern => $route) {
             if (preg_match("#$pattern#i", $url, $matches)) {
                 foreach ($matches as $key => $value) {
@@ -75,25 +76,32 @@ class Router
      */
     public static function dispatch($url)
     {
+
+        unset($_GET['index_php']);
+        unset($_GET[$_SERVER['REDIRECT_QUERY_STRING']]);
+
         $url = explode('?', $url)[0];
         if (self::matchRoutes($url)) {
+
             $controller = 'controller\\' . self::upperCamelCase(self::$route['controller']) . 'Controller';
+
             if (class_exists($controller)) {
+
                 $controller = new $controller(self::$route);
                 $action = 'action' . self::upperCamelCase(self::$route['action']);
                 if (method_exists($controller, $action)) {
                     $controller->$action();
                 } else {
                     $message = 'Controller : ' . self::upperCamelCase(self::$route['controller']) . 'Controller' . '<br>' . 'action : ' . $action . ' is not fund';
-                    include Base::getAlias('@pathToNotFoundPage');
+                    include Alias::getAlias('@pathToNotFoundPage');
                 }
             } else {
                 $message = 'Controller : ' . self::upperCamelCase(self::$route['controller']) . 'Controller is not fund';
-                include Base::getAlias('@pathToNotFoundPage');
+                include Alias::getAlias('@pathToNotFoundPage');
             }
         } else {
             $message = 'Page not found';
-            include Base::getAlias('@pathToNotFoundPage');
+            include Alias::getAlias('@pathToNotFoundPage');
         }
     }
 }

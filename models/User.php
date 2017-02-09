@@ -8,13 +8,13 @@
 
 namespace models;
 
-
 use vendor\components\Model;
 
 class User extends Model
 {
     public $token = null;
-    
+    public $repeatPassword;
+
     public function tableName()
     {
         return 'user';
@@ -22,9 +22,13 @@ class User extends Model
 
     public function rule()
     {
-        return [
-            [['email', 'password'], 'required'],
-            ['email', 'email'],
-        ];  
+        if(empty($this->customRule)) {
+            return [
+                [['email', 'password'], 'required'],
+                ['email', 'email'],
+            ];
+        } else {
+            return $this->customRule;
+        }
     }
 }

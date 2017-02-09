@@ -24,10 +24,20 @@ class Auth
 
         self::$user->email = $email;
         self::$user->password = self::dataCrypt($password);
+        self::$user->is_active = 0;
 
         if (self::checkOnExistUser()) {
             self::$user->save();
+        } else {
+            return false;
         }
+
+        return true;
+    }
+
+    public static function getUserEmail()
+    {
+        return $_SESSION['loggedUser'];
     }
 
     public static function getUserToken()
@@ -42,9 +52,10 @@ class Auth
         self::$user->where('email', '=', "'" . $email . "'")->findOne();
 
         if (self::equalsCryptData($password, self::$user->password)) {
+
             $hash = self::dataCrypt(self::generateRandomString());
             self::$user->token = $hash;
-            self::addToSession($hash);
+            self::addToSession(self::$user->email);
         } else {
             throw new \Exception('Invalid email or password');
         }
@@ -52,13 +63,14 @@ class Auth
 
     public static function isGuest()
     {
-        if(empty($_SESSION['loggedUser'])) {
+        if(!isset($_SESSION['loggedUser'])) {
             return true;
         }
 
         return false;
     }
 
+    
     private static function generateRandomString($length = 10) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -71,7 +83,7 @@ class Auth
 
     public static function logOut()
     {
-        $_SESSION['loggedUser'] = null;
+        unset($_SESSION['loggedUser']);
         self::$user = null;
     }
 

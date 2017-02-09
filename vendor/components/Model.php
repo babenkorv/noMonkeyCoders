@@ -10,9 +10,12 @@ abstract class Model extends SqlBuilder
 {
     use Validator;
 
+    public $notDefineAttribute = [];
+
+    public $customRule = [];
     public $attribute = [];
     public $oldAttribute = [];
-
+    
     abstract public function tableName();
 
     public function __construct()
@@ -22,6 +25,11 @@ abstract class Model extends SqlBuilder
         $this->attribute = $this->getAttribute();
     }
 
+    public function setCustomRule($rule = [])
+    {
+        $this->customRule = $rule;
+    }
+    
     private function getAttribute()
     {
         $attribute = [];
@@ -48,6 +56,8 @@ abstract class Model extends SqlBuilder
 
     public function __get($name)
     {
+
+
         if (array_key_exists($name, $this->attribute)) {
             return $this->attribute[$name]['value'];
         } else {
@@ -57,10 +67,6 @@ abstract class Model extends SqlBuilder
 
     public function save()
     {
-        if(!$this->validate()) {
-            return false;
-        }
-
         $this->clearSqlPart();
         $data = [];
 
@@ -99,6 +105,41 @@ abstract class Model extends SqlBuilder
         }
 
         return false;
+    }
+
+    public function load()
+    {
+        if (empty($_GET) && empty($_POST)) {
+            return false;
+        } else {
+            $attribute = [];
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    $attribute = $_GET;
+                    break;
+                case 'POST':
+                    $attribute = $_POST;
+                    break;
+            }
+
+            $this->setAttribute($attribute);
+            return true;
+        }
+    }
+
+    public function setAttribute($attributes)
+    {
+        foreach ($attributes as $attributeName => $attributeValue) {
+            if (key_exists($attributeName, $this->attribute)) {
+                $this->{$attributeName} = $attributeValue;
+            } else {
+                if (property_exists($this, $attributeName)) {
+                    $this->{$attributeName} = $attributeValue;
+                } else {
+                    $this->notDefineAttribute[$attributeName] = $attributeValue;
+                }
+            }
+        }
     }
 }
 

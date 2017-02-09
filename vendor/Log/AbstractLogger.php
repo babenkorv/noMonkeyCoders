@@ -1,6 +1,6 @@
 <?php
 
-namespace vendor\Log;
+namespace vendor\log;
 
 /**
  * Class AbstractLogger

@@ -1,13 +1,17 @@
 <?php
 
 \vendor\components\AssetManager::register($this->viewUniqueName);
-$paginator = new \vendor\widgets\Pagination(new \models\MyModel(), 2, 4);
+$paginator = new \vendor\widgets\Pagination(new \models\MyModel(), 1, 6);
 
 echo new \vendor\widgets\GridView([
     'model' => $paginator->model(),
     'searchModel' => new \models\search\MyModelSearch(),
     'column' => [
-        'name',
+        [
+            'attribute' => 'name',
+            'label' => 'asd',
+            'filter' =>''
+        ],
         [
             'attribute' => 'sex',
             'label' => 'gender',

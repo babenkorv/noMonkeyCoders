@@ -35,6 +35,7 @@ trait Validator
      */
     public function validate()
     {
+
         $this->existAttribute = [];
         $this->rules = $this->rule();
 
@@ -42,10 +43,10 @@ trait Validator
             $param = [];
             $fields = $rule[0];
             $validator = 'validate' . ucfirst($rule[1]);
+
             if (!empty($rule['param'])) {
                 $param = $rule['param'];
             }
-
             if (is_array($fields)) {
                 foreach ($fields as $field) {
                     if (method_exists($this, $validator)) {
@@ -57,8 +58,11 @@ trait Validator
                     }
                 }
             } else {
+
                 if (method_exists($this, $validator)) {
+
                     if ($this->checkExistAttribute($fields)) {
+
                         $this->$validator($fields, $param);
                     }
                 } else {
@@ -83,6 +87,7 @@ trait Validator
      */
     public function checkExistAttribute($attribute)
     {
+
         if (empty($this->existAttribute)) {
             foreach ($this->attribute as $key => $value) {
                 $this->existAttribute[] = $key;
@@ -91,10 +96,25 @@ trait Validator
         if (in_array(trim($attribute), $this->existAttribute)) {
             return true;
         } else {
-            throw new \Exception('Attribute with name :' . $attribute . ' is not exist');
+            if (property_exists($this, $attribute)) {
+                $this->existAttribute[] = $attribute;
+                return true;
+            } else {
+                throw new \Exception('Attribute with name :' . $attribute . ' is not exist');
+            }
         }
     }
 
+    /**
+     * Return array with error.
+     *
+     * @return array
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+    
     /**
      * Add error to error Array/
      *
@@ -106,7 +126,7 @@ trait Validator
         if (!empty($this->error[$field])) {
             array_push($this->error[$field], $errorDescription);
         } else {
-            $this->error[$field] = $errorDescription;
+            $this->error[$field] = [$errorDescription];
         }
     }
 
@@ -121,11 +141,10 @@ trait Validator
      */
     public function validateRequired($field)
     {
-
-        if ($this->attribute[$field]['value'] != '') {
+        if($this->{$field} != '') {
             return true;
         }
-
+        
         $this->addError($field, 'Field is required');
     }
 
@@ -145,13 +164,13 @@ trait Validator
     {
         if (!empty($param['field']) ? $this->checkExistAttribute($param['field']) : true) {
             if (!empty($param['value'])) {
-                if ($param['value'] !== $this->attribute[$field]['value']) {
+                if ($param['value'] !== $this->{$field}) {
                     $this->addError($field, 'Field is not equal ' . $param['value']);
                 }
             }
 
             if (!empty($param['field'])) {
-                if ($this->attribute[$param['field']]['value'] !== $this->attribute[$field]['value']) {
+                if ($this->{$param['field']} !== $this->{$field}) {
                     $this->addError($field, 'Field with name ' . $field . ' is not equal ' . $param['field']);
                 }
             }
@@ -174,13 +193,13 @@ trait Validator
     {
         if (!empty($param['field']) ? $this->checkExistAttribute($param['field']) : true) {
             if (!empty($param['value'])) {
-                if ($param['value'] === $this->attribute[$field]['value']) {
+                if ($param['value'] === $this->{$field}) {
                     $this->addError($field, 'Field is not different ' . $param['value']);
                 }
             }
 
             if (!empty($param['field'])) {
-                if ($this->attribute[$param['field']]['value'] === $this->attribute[$field]['value']) {
+                if ($this->{$param['field']} === $this->{$field}) {
                     $this->addError($field, 'Field with name ' . $field . ' is not different ' . $param['field']);
                 }
             }
@@ -200,7 +219,7 @@ trait Validator
     {
         $acceptedValue = [true, 1, '1', 'yes', 'on'];
 
-        if (in_array($this->attribute[$field]['value'], $acceptedValue)) {
+        if (in_array($this->{$field}, $acceptedValue)) {
             return true;
         }
 
@@ -217,7 +236,7 @@ trait Validator
      */
     public function validateNumeric($field)
     {
-        if (!is_numeric($this->attribute[$field])) {
+        if (!is_numeric($this->{$field})) {
             $this->addError($field, 'Field with name ' . $field . ' is not numeric');
         }
     }
@@ -232,7 +251,7 @@ trait Validator
      */
     public function validateInteger($field)
     {
-        if (!is_integer($this->attribute[$field])) {
+        if (!is_integer($this->{$field})) {
             $this->addError($field, 'Field with name ' . $field . ' is not numeric');
         }
     }
@@ -247,7 +266,7 @@ trait Validator
      */
     public function validateBoolean($field)
     {
-        if (!is_bool($this->attribute[$field])) {
+        if (!is_bool($this->{$field})) {
             $this->addError($field, 'Field with name ' . $field . ' is not boolean');
         }
     }
@@ -262,7 +281,7 @@ trait Validator
      */
     public function validateArray($field)
     {
-        if (!is_array($this->attribute[$field])) {
+        if (!is_array($this->{$field})) {
             $this->addError($field, 'Field with name ' . $field . ' is not array');
         }
     }
@@ -279,8 +298,8 @@ trait Validator
      */
     public function validateLength($field, $param)
     {
-        if (is_string($this->attribute[$field]['value'])) {
-            if (strlen($this->attribute[$field]['value']) === $param) {
+        if (is_string($this->{$field})) {
+            if (strlen($this->{$field}) === $param) {
                 return true;
             }
         }
@@ -300,8 +319,8 @@ trait Validator
      */
     public function validateLengthMax($field, $param)
     {
-        if (is_string($this->attribute[$field]['value'])) {
-            if (strlen($this->attribute[$field]['value']) <= $param) {
+        if (is_string($this->{$field})) {
+            if (strlen($this->{$field}) <= $param) {
                 return true;
             }
         }
@@ -321,8 +340,8 @@ trait Validator
      */
     public function validateLengthMin($field, $param)
     {
-        if (is_string($this->attribute[$field]['value'])) {
-            if (strlen($this->attribute[$field]['value']) >= $param) {
+        if (is_string($this->{$field})) {
+            if (strlen($this->{$field}) >= $param) {
                 return true;
             }
         }
@@ -342,8 +361,8 @@ trait Validator
      */
     public function validateLengthBetween($field, $param)
     {
-        if (is_string($this->attribute[$field]['value'])) {
-            if (strlen($this->attribute[$field]['value']) >= $param[0] && strlen($this->attribute[$field]['value']) <= $param[1]) {
+        if (is_string($this->{$field})) {
+            if (strlen($this->{$field}) >= $param[0] && strlen($this->{$field}) <= $param[1]) {
                 return true;
             }
         }
@@ -363,8 +382,8 @@ trait Validator
      */
     public function validateMax($field, $param)
     {
-        if (is_numeric($this->attribute[$field]['value'])) {
-            if ($this->attribute[$field]['value'] <= $param) {
+        if (is_numeric($this->{$field})) {
+            if ($this->{$field} <= $param) {
                 return true;
             }
         }
@@ -384,8 +403,8 @@ trait Validator
      */
     public function validateMin($field, $param)
     {
-        if (is_numeric($this->attribute[$field]['value'])) {
-            if ($this->attribute[$field]['value'] >= $param) {
+        if (is_numeric($this->{$field})) {
+            if ($this->{$field} >= $param) {
                 return true;
             }
         }
@@ -405,8 +424,8 @@ trait Validator
      */
     public function validateBetween($field, $param)
     {
-        if (is_numeric($this->attribute[$field]['value'])) {
-            if ($this->attribute[$field]['value'] >= $param[0] && $this->attribute[$field]['value'] <= $param[1]) {
+        if (is_numeric($this->{$field})) {
+            if ($this->{$field} >= $param[0] && $this->{$field} <= $param[1]) {
                 return true;
             }
         }
@@ -426,8 +445,8 @@ trait Validator
      */
     public function validateIn($field, $param)
     {
-        if (is_numeric($this->attribute[$field]['value'])) {
-            if (in_array($this->attribute[$field]['value'], $param)) {
+        if (is_numeric($this->{$field})) {
+            if (in_array($this->{$field}, $param)) {
                 return true;
             }
         }
@@ -455,8 +474,8 @@ trait Validator
      */
     public function validateNotIn($field, $param)
     {
-        if (is_numeric($this->attribute[$field]['value'])) {
-            if (in_array($this->attribute[$field]['value'], $param)) {
+        if (is_numeric($this->{$field})) {
+            if (in_array($this->{$field}, $param)) {
                 return true;
             }
         }
@@ -481,7 +500,7 @@ trait Validator
      */
     public function validateIp($field)
     {
-        if (!filter_var($this->attribute[$field]['value'], FILTER_VALIDATE_IP)) {
+        if (!filter_var($this->{$field}, FILTER_VALIDATE_IP)) {
             $this->addError($field, 'ip validate error');
         }
     }
@@ -496,7 +515,7 @@ trait Validator
      */
     public function validateUrl($field)
     {
-        if (!filter_var($this->attribute[$field]['value'], FILTER_VALIDATE_URL)) {
+        if (!filter_var($this->{$field}, FILTER_VALIDATE_URL)) {
             $this->addError($field, 'email validate error');
         }
     }
@@ -511,7 +530,7 @@ trait Validator
      */
     public function validateEmail($field)
     {
-        if (!filter_var($this->attribute[$field]['value'], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($this->{$field}, FILTER_VALIDATE_EMAIL)) {
             $this->addError($field, 'email validate error');
         }
     }
@@ -526,7 +545,7 @@ trait Validator
      */
     public function validateDate($field)
     {
-        if(!$this->attribute[$field]['value'] instanceof \DateTime) {
+        if (!$this->{$field} instanceof \DateTime) {
             $this->addError($field, 'is not a date');
         }
     }

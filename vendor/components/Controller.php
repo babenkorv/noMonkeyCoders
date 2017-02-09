@@ -12,15 +12,15 @@ namespace vendor\components;
 class Controller
 {
     private $view;
-    private $layout;
-    private $globParam = [];
-    private $renderParam = [];
+    private $controller;
     public $viewUniqueName = '';
+    public $layout = 'main';
 
     public function __construct($route)
     {
+        session_start();
         $this->view = $route['action'];
-        $this->layout = $route['controller'];
+        $this->controller = $route['controller'];
         $this->viewUniqueName = $this->setViewUniqueName();
 
         foreach ($_GET as $key => $value) {
@@ -30,31 +30,47 @@ class Controller
         }
 
         unset($_GET['index_php']);
-        unset($_GET[$this->layout]);
+        unset($_GET[$this->controller]);
     }
 
     public function setViewUniqueName()
     {
-        return $this->layout . '::' . $this->view;
+        return $this->controller . '::' . $this->view;
     }
 
     public function render($view, $params = [])
     {
         $assets = '';
-        
-        $path = Base::getAlias('@view') . $this->layout . DIRECTORY_SEPARATOR . $view . '.php';
+        $pathToLayout = Alias::getAlias('@view') . 'layout' . DIRECTORY_SEPARATOR . $this->layout . '.php';
+        $pathToView = Alias::getAlias('@view') . $this->controller . DIRECTORY_SEPARATOR . $view . '.php';
         if(!empty($params)) {
             foreach ($params as $paramKey => $paramValue) {
                 ${$paramKey} = $paramValue;
             }
         }
+        if(file_exists($pathToView)) {
+            ob_start();
+            include ($pathToView);
+            $content = ob_get_contents();
+            ob_end_clean();
+            if(file_exists($pathToLayout)) {
+                include $pathToLayout;
+            } else {
+                $message = 'layout not found';
+                include Alias::getAlias('@pathToNotFoundPage');
+            }
 
-        if(file_exists($path)) {
-            include $path;
         } else {
             $message = 'view not found';
-            include Base::getAlias('@pathToNotFoundPage');
+            include Alias::getAlias('@pathToNotFoundPage');
         }
+    }
+    
+    public function redirectToUrl($url) 
+    {
+
+        header('Location: ' . $url);
+
     }
     
 }
