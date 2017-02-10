@@ -3,10 +3,7 @@
 namespace vendor\components;
 
 
-use models\User;
-use vendor\db\DataBaseConnect;
-use vendor\db\DB;
-use vendor\db\SqlBuilder;
+use application\models\User;
 
 class Auth
 {

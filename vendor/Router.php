@@ -83,8 +83,8 @@ class Router
         $url = explode('?', $url)[0];
         if (self::matchRoutes($url)) {
 
-            $controller = 'controller\\' . self::upperCamelCase(self::$route['controller']) . 'Controller';
-
+            $controller = 'application\controller\\' . self::upperCamelCase(self::$route['controller']) . 'Controller';
+       
             if (class_exists($controller)) {
 
                 $controller = new $controller(self::$route);

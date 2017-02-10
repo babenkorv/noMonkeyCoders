@@ -10,7 +10,7 @@ return [
     'pathToLogFile' => dirname(__DIR__) . '\\' . 'log\log.txt',
 
     'defaultRoute' => 'main/index',
-    'project_name' => 'NoMonkeyCoders',
+    'project_name' => 'fw',
 
     'assetManager' => [
         'css' => [

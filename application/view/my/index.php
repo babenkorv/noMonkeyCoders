@@ -1,11 +1,14 @@
 <?php
 
+
+
+new \application\models\MyModel();
 \vendor\components\AssetManager::register($this->viewUniqueName);
-$paginator = new \vendor\widgets\Pagination(new \models\MyModel(), 1, 6);
+$paginator = new \vendor\widgets\Pagination(new \application\models\MyModel(), 6, 6);
 
 echo new \vendor\widgets\GridView([
     'model' => $paginator->model(),
-    'searchModel' => new \models\search\MyModelSearch(),
+    'searchModel' => new \application\models\search\MyModelSearch(),
     'column' => [
         [
             'attribute' => 'name',
@@ -20,7 +23,7 @@ echo new \vendor\widgets\GridView([
     ],
     'paginationNavBar' => $paginator->navBar(),
 ]);
-
+//
 //$form = new \vendor\widgets\Form();
 //
 //$form->begin('my_form', '/my/index', 'get');

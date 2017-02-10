@@ -8,11 +8,11 @@ $autoloader = new Autoloader([]);
 $autoloader->run();
 
 /*------------- Set alias -------------*/
-\vendor\components\Alias::setAlias('@app',  dirname(__DIR__) . DIRECTORY_SEPARATOR . $config['project_name'] . DIRECTORY_SEPARATOR);
-\vendor\components\Alias::setAlias('@pathToNotFoundPage', \vendor\components\Alias::getAlias('@app') . 'vendor' . DIRECTORY_SEPARATOR . 'defaltMessagePage' . DIRECTORY_SEPARATOR . '404.php');
-\vendor\components\Alias::setAlias('@view', \vendor\components\Alias::getAlias('@app') . 'view' . DIRECTORY_SEPARATOR);
-\vendor\components\Alias::setAlias('@web', \vendor\components\Alias::getAlias('@app') . 'web' . DIRECTORY_SEPARATOR);
-\vendor\components\Alias::setAlias('@config', \vendor\components\Alias::getAlias('@app') . 'config' . DIRECTORY_SEPARATOR);
+\vendor\components\Alias::setAlias('@project',  dirname(__DIR__) . DIRECTORY_SEPARATOR . $config['project_name'] . DIRECTORY_SEPARATOR);
+\vendor\components\Alias::setAlias('@pathToNotFoundPage', \vendor\components\Alias::getAlias('@project') . 'vendor' . DIRECTORY_SEPARATOR . 'defaltMessagePage' . DIRECTORY_SEPARATOR . '404.php');
+\vendor\components\Alias::setAlias('@view', \vendor\components\Alias::getAlias('@project') . 'application' . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR);
+\vendor\components\Alias::setAlias('@web', \vendor\components\Alias::getAlias('@project') . 'application' . DIRECTORY_SEPARATOR . 'web' . DIRECTORY_SEPARATOR);
+\vendor\components\Alias::setAlias('@config', \vendor\components\Alias::getAlias('@project') . 'config' . DIRECTORY_SEPARATOR);
 
 /*------------- set config asset -------------*/
 \vendor\components\AssetManager::setConfigAsset();

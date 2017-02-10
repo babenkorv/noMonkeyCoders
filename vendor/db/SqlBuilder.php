@@ -338,7 +338,7 @@ class SqlBuilder
         if (!empty($this->offset)) {
             $this->sql .= ' OFFSET ' . $this->offset . ' ';
         }
-
+ 
         return $this->sql;
     }
 

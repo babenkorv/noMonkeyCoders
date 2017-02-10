@@ -40,6 +40,7 @@ class Controller
 
     public function render($view, $params = [])
     {
+
         $assets = '';
         $pathToLayout = Alias::getAlias('@view') . 'layout' . DIRECTORY_SEPARATOR . $this->layout . '.php';
         $pathToView = Alias::getAlias('@view') . $this->controller . DIRECTORY_SEPARATOR . $view . '.php';
@@ -48,9 +49,13 @@ class Controller
                 ${$paramKey} = $paramValue;
             }
         }
+ 
         if(file_exists($pathToView)) {
+
             ob_start();
+       
             include ($pathToView);
+
             $content = ob_get_contents();
             ob_end_clean();
             if(file_exists($pathToLayout)) {
@@ -64,6 +69,7 @@ class Controller
             $message = 'view not found';
             include Alias::getAlias('@pathToNotFoundPage');
         }
+
     }
     
     public function redirectToUrl($url) 

@@ -10,7 +10,7 @@
 );
 ?>
 
-<h3 class="text-center">Sign In</h3>
+<h3 class="text-center">Log In</h3>
 
 <div class="column col-6 col-sm-12 centered">
     <form class="form-horizontal" action="/main/logIn" method="post" id="logIn">

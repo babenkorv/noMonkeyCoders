@@ -1,8 +1,8 @@
 <?php
 
-namespace controller;
+namespace application\controller;
 
-use models\MyModel;
+use application\models\MyModel;
 use vendor\components\Controller;
 use vendor\widgets\GridView;
 

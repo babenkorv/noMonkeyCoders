@@ -6,7 +6,7 @@
  * Time: 16:57
  */
 
-namespace models;
+namespace application\models;
 
 use vendor\components\Model;
 

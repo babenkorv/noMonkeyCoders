@@ -1,8 +1,8 @@
 <?php
 
-namespace models\search;
+namespace application\models\search;
 
-use models\MyModel;
+use application\models\MyModel;
 
 class MyModelSearch extends MyModel
 {

@@ -1,9 +1,8 @@
 <?php
 
-namespace controller;
+namespace application\controller;
 
-use models\User;
-use vendor\components\AssetManager;
+use application\models\User;
 use vendor\components\Auth;
 use vendor\components\Controller;
 
