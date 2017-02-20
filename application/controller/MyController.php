@@ -12,7 +12,7 @@ class MyController extends Controller
 
     public function actionIndex()
     {
-
+        
         $this->render('index', []);
     }
 }

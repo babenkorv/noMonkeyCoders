@@ -49,7 +49,7 @@ class Controller
                 ${$paramKey} = $paramValue;
             }
         }
- 
+
         if(file_exists($pathToView)) {
 
             ob_start();

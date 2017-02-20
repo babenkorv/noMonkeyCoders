@@ -3,7 +3,7 @@
 \vendor\components\AssetManager::setAsset(
     $this->viewUniqueName, [
         'css' => [
-            'indexPage.css'
+            'css/indexPage.css'
         ],
     ]
 );

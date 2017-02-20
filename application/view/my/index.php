@@ -1,7 +1,5 @@
 <?php
 
-
-
 new \application\models\MyModel();
 \vendor\components\AssetManager::register($this->viewUniqueName);
 $paginator = new \vendor\widgets\Pagination(new \application\models\MyModel(), 6, 6);

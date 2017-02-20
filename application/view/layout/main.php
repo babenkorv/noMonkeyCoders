@@ -1,9 +1,14 @@
+<?php
+$assets = \vendor\components\AssetManager::register($this->viewUniqueName);
+?>
+
 
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <?= $assets['html']  ?>
 </head>
 <body>
 <section class=" text-center top-navbar">
@@ -17,7 +22,6 @@
 
 <?= $content ?>
 
+<?= $assets['js'] ?>
 </body>
 </html>
-
-<?php \vendor\components\AssetManager::register($this->viewUniqueName); ?>  

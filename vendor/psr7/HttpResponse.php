@@ -80,7 +80,7 @@ class HttpResponse extends HttpMessage implements ResponseInterface
      * @param string $version response protocol version.
      * @param string $reason description response status.
      */
-    public function __construct($status = 200, array $headers = [], StreamInterface $body, $version, $reason = null)
+    public function __construct($status = 200, array $headers = [], HttpStream $body, $version, $reason = null)
     {
         $this->status = $status;
         $this->setHeaders($headers);

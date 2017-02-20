@@ -7,10 +7,12 @@ class AssetManager
 {
     private static $assets = [];
 
+    private static $includedLink = [];
+
     private static $defaultPath = [];
 
     /**
-     * Return asset with name @param $name.
+     * Return asset with name @param $name .
      *
      * @param string $name unique asset name.
      * @return mixed
@@ -33,6 +35,7 @@ class AssetManager
      */
     public function setAsset($name, $assets)
     {
+
         foreach ($assets as $type => $asset) {
             if (array_key_exists($type, self::$assets)) {
                 if (array_key_exists($name, self::$assets[$type])) {
@@ -58,6 +61,8 @@ class AssetManager
      */
     public static function register($unique, $defaultPath = [])
     {
+        $currentPageRequestUri = str_replace('/', '::', substr($_SERVER['REQUEST_URI'], 1, strlen($_SERVER['REQUEST_URI'])));
+
         $assetCss = array_merge(
             (!empty(self::$assets['css']['*'])) ? self::$assets['css']['*'] : [],
             (!empty(self::$assets['css'][$unique])) ? self::$assets['css'][$unique] : []);
@@ -65,29 +70,34 @@ class AssetManager
             (!empty(self::$assets['js']['*'])) ? self::$assets['js']['*'] : [],
             (!empty(self::$assets['js'][$unique])) ? self::$assets['js'][$unique] : []);
 
-        $htmlCss = '<style>' . PHP_EOL;
+        $htmlCss = '';
         $htmlJs = '';
-
-
+        if (!isset(self::$includedLink[$currentPageRequestUri])) {
+            self::$includedLink[$currentPageRequestUri] = [];
+        }
+        ob_start();
         foreach ($assetCss as $key => $css) {
-            echo '<style>' . PHP_EOL;
-            include (!empty($defaultPath['css'])) ? $defaultPath['css'] . $css : self::$defaultPath['css'] . $css;
-//            $htmlCss .= '<link href="' . Alias::getAlias('@web') . $css . '" type="text/css" rel="stylesheet">' . PHP_EOL ;
-            echo PHP_EOL . '</style>';
+            self::$includedLink[$currentPageRequestUri][] = $css;
+            echo $htmlCss .= '<link href="' . '/application/web/' . $css . '"  rel="stylesheet">' . PHP_EOL;
         }
+        $htmlLink = ob_get_contents();
+        ob_end_clean();
 
+        ob_start();
         foreach ($assetJs as $key => $js) {
-            echo '<script>';
-            include (!empty($defaultPath['js'])) ? $defaultPath['js'] . $js : self::$defaultPath['js'] . $js;
-//            $htmlJs .= '<script src="' . $defaultPath['js'] . $js . '">' . '</script>' . '<br>';
-            echo PHP_EOL . '</script>';
+            self::$includedLink[$currentPageRequestUri][] = $js;
+            echo $htmlJs .= '<script src="' . '/application/web/' . 'js/' . $js . '">' . '</script>' . '<br>';
+
         }
+        $jsScript = ob_get_contents();
+        ob_end_clean();
+        return ['html' => $htmlLink, 'js' => $jsScript];
     }
 
     /**
      * Set path to folder with js, css files.
      *
-     * For example @param array $defaultPath:
+     * For example @param array $defaultPath :
      *      [
      *          'css' => [
      *              'path/to/css/files'

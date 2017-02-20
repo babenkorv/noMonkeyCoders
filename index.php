@@ -1,4 +1,5 @@
 <?php
+
 $config = include 'config/app.php';
 
 /*------------- Autoload -------------*/
@@ -7,6 +8,10 @@ require_once 'vendor/Autoloader.php';
 $autoloader = new Autoloader([]);
 $autoloader->run();
 
+$container = new \vendor\Container();
+$r = $container->HttpResponse;
+
+var_dump($r);
 /*------------- Set alias -------------*/
 \vendor\components\Alias::setAlias('@project',  dirname(__DIR__) . DIRECTORY_SEPARATOR . $config['project_name'] . DIRECTORY_SEPARATOR);
 \vendor\components\Alias::setAlias('@pathToNotFoundPage', \vendor\components\Alias::getAlias('@project') . 'vendor' . DIRECTORY_SEPARATOR . 'defaltMessagePage' . DIRECTORY_SEPARATOR . '404.php');
